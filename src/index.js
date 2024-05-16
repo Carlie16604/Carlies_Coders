@@ -1,11 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Link, HashRouter, Routes, Route } from 'react-router-dom';
-import Products from './Products';
-import Orders from './Orders';
-import Cart from './Cart';
-import Login from './Login';
-import Addresses from './Addresses';
+import Products from './Authorized/Products';
+import Orders from './Authorized/Orders';
+import Cart from './Authorized/Cart';
 import { Loader } from "@googlemaps/js-api-loader"
 import api from './api';
 
@@ -107,111 +105,65 @@ const App = ()=> {
     return acc += item.quantity;
   }, 0);
 
-  const login = async(credentials)=> {
-    await api.login({ credentials, setAuth });
-  }
-
-  const logout = ()=> {
-    api.logout(setAuth);
-  }
-
   return (
     <div>
       <div ref={ el } style={{ height: '30px'}}/>
-      {
-        auth.id ? (
-          <>
-            <nav>
-              <Link to='/products'>Products ({ products.length })</Link>
-              <Link to='/orders'>Orders ({ orders.filter(order => !order.is_cart).length })</Link>
-              <Link to='/cart'>Cart ({ cartCount })</Link>
-              <Link to='/addresses'>Addresses ({ addresses.length })</Link>
-              <span>
-                Welcome { auth.username }!
-                <button onClick={ logout }>Logout</button>
-              </span>
-            </nav>
-            <main>
-              <Routes>
-                <Route path='/addresses' element={ 
-                    <Addresses createAddress={ createAddress } addresses={ addresses } />
-                  }
-                />
-                
-                <Route path='/products/search/:term' element={
-                  <Products
-                    auth = { auth }
-                    products={ products }
-                    cartItems = { cartItems }
-                    createLineItem = { createLineItem }
-                    updateLineItem = { updateLineItem }
-                    updateProduct = { updateProduct }
-                  />
-                } />
-                <Route path='/products' element={
-                  <Products
-                    auth = { auth }
-                    products={ products }
-                    cartItems = { cartItems }
-                    createLineItem = { createLineItem }
-                    updateLineItem = { updateLineItem }
-                    updateProduct = { updateProduct }
-                  />
-                } />
-                <Route path='/cart' element={
-                  <Cart
-                    cart = { cart }
-                    lineItems = { lineItems }
-                    products = { products }
-                    updateOrder = { updateOrder }
-                    removeFromCart = { removeFromCart }
-                  />
-                } />
-                <Route path='/orders' element={
-                  <Orders
-                    orders = { orders }
-                    products = { products }
-                    lineItems = { lineItems }
-                  />
-                } />
-              </Routes>
-            </main>
-            </>
-        ):(
-          <div>
-            <Login login={ login }/>
-            <Routes>
-              <Route path='/' element= {
-                <Products
-                  products={ products }
-                  cartItems = { cartItems }
-                  createLineItem = { createLineItem }
-                  updateLineItem = { updateLineItem }
-                  auth = { auth }
-                />
-              } />
-              <Route path='/products' element= {
-                <Products
-                  products={ products }
-                  cartItems = { cartItems }
-                  createLineItem = { createLineItem }
-                  updateLineItem = { updateLineItem }
-                  auth = { auth }
-                />
-              } />
-              <Route path='/products/search/:term' element= {
-                <Products
-                  products={ products }
-                  cartItems = { cartItems }
-                  createLineItem = { createLineItem }
-                  updateLineItem = { updateLineItem }
-                  auth = { auth }
-                />
-              } />
-            </Routes>
-          </div>
-        )
-      }
+      <nav>
+        <Link to='/products'>Products ({ products.length })</Link>
+        <Link to='/orders'>Orders ({ orders.filter(order => !order.is_cart).length })</Link>
+        <Link to='/cart'>Cart ({ cartCount })</Link>
+        <Link to='/addresses'>Addresses ({ addresses.length })</Link>
+        {auth.id && (
+          <span>
+            Welcome { auth.username }!
+            <button onClick={ () => api.logout(setAuth) }>Logout</button>
+          </span>
+        )}
+      </nav>
+      <main>
+        <Routes>
+          <Route path='/addresses' element={ 
+              <addresses createAddress={ createAddress } addresses={ addresses } />
+            }
+          />
+          <Route path='/products/search/:term' element={
+            <Products
+              auth = { auth }
+              products={ products }
+              cartItems = { cartItems }
+              createLineItem = { createLineItem }
+              updateLineItem = { updateLineItem }
+              updateProduct = { updateProduct }
+            />
+          } />
+          <Route path='/products' element={
+            <Products
+              auth = { auth }
+              products={ products }
+              cartItems = { cartItems }
+              createLineItem = { createLineItem }
+              updateLineItem = { updateLineItem }
+              updateProduct = { updateProduct }
+            />
+          } />
+          <Route path='/cart' element={
+            <Cart
+              cart = { cart }
+              lineItems = { lineItems }
+              products = { products }
+              updateOrder = { updateOrder }
+              removeFromCart = { removeFromCart }
+            />
+          } />
+          <Route path='/orders' element={
+            <Orders
+              orders = { orders }
+              products = { products }
+              lineItems = { lineItems }
+            />
+          } />
+        </Routes>
+      </main>
     </div>
   );
 };
